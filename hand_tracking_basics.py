@@ -52,6 +52,18 @@ while True:
 
     if results.multi_hand_landmarks:
         for hand in results.multi_hand_landmarks:
+
+            for id, lm in enumerate(hand.landmark):
+                # print(id, lm)   # nos retorna as coordenadas em casas decimais, mas queremos em px. Pra isso faremos uma conta
+
+                height, width, channels = img.shape
+                center_x, center_y = int(lm.x*width), int(lm.y*height)
+
+                # print(id, center_x, center_y)
+                # ideia basica de alterar alguma junta
+                # if id == 8:
+                    # cv2.circle(img, (center_x, center_y), 10, (255, 255, 0), cv2.FILLED)
+
             # mp_draw.draw_landmarks(img, hand) # executar primeiro assim
             mp_draw.draw_landmarks(img, hand, mp_hands.HAND_CONNECTIONS)
 
