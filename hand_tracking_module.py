@@ -25,6 +25,7 @@ Type Hints podem ser usadas para otimizar o código em tempo de execução. Por 
 webcam_image = np.ndarray
 confidence = float
 coords_vector = Union[int, list[int]]
+rgb_tuple = tuple[int, int, int]
 # =========================
 
 
@@ -92,12 +93,14 @@ class VanzeDetector():
     def draw_in_position(self,
                             img: webcam_image,
                             x_vector: coords_vector, 
-                            y_vector: coords_vector):
+                            y_vector: coords_vector,
+                            rgb_selection: rgb_tuple = (255, 0, 0),
+                            thickness: int = 10):
         x_vector = x_vector if type(x_vector) == list else [x_vector]
         y_vector = y_vector if type(y_vector) == list else [y_vector]
 
         for x, y in zip(x_vector, y_vector):
-            cv2.circle(img, (x, y), 10, (255, 0, 0), cv2.FILLED)
+            cv2.circle(img, (x, y), thickness, rgb_selection, cv2.FILLED)
 
         return img
         
