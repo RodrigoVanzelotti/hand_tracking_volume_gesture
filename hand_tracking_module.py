@@ -19,17 +19,23 @@ class HandDetector():
     def __init__(self, 
                     mode: bool = False, 
                     number_hands: int = 2, 
-                    min_detec_confidence: confidence = .5, 
-                    min_tracking_confidence: confidence = .5
+                    model_complexity: int = 1,
+                    min_detec_confidence: confidence = 0.5, 
+                    min_tracking_confidence: confidence = 0.5
                 ):
-        self.mode = mode,
-        self.max_num_hands = number_hands,
-        self.detection_con = min_detec_confidence,
+        
+        # Parametros necessário para inicializar o hands -> solução do mediapipe
+        self.mode = mode
+        self.max_num_hands = number_hands
+        self.complexity = model_complexity
+        self.detection_con = min_detec_confidence
         self.tracking_con = min_tracking_confidence
 
+        # Inicializando o hands
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(self.mode,
                                         self.max_num_hands,
+                                        self.complexity,
                                         self.detection_con,
                                         self.tracking_con)    
         self.mp_draw = mp.solutions.drawing_utils
@@ -38,17 +44,37 @@ class HandDetector():
                     img: webcam_image, 
                     draw_hands: bool = True
                 ):
+        # Correção de cor
         img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        results = self.hands.process(img_RGB)
-
-        if results.multi_hand_landmarks:
-            for hand in results.multi_hand_landmarks:
+        # Coletando resultados do processo das hands e analisando-os
+        self.results = self.hands.process(img_RGB)
+        if self.results.multi_hand_landmarks:
+            for hand in self.results.multi_hand_landmarks:
                 if draw_hands:
-                    self.mp_draw.draw_landmarks(img, hand, self.mp_hands.HAND_CONNECTIONS)   
+                    self.mp_draw.draw_landmarks(img, hand, self.mp_hands.HAND_CONNECTIONS)  
 
+        return img
 
+    def find_position(self, 
+                        img: webcam_image, 
+                        hand_number: int = 0, 
+                        draw_hands: bool = True):
+        required_landmark_list = []
+        
+        if self.results.multi_hand_landmarks:
+            my_hand = self.results.multi_hand_landmarks[hand_number]
+            for id, lm in enumerate(my_hand.landmark):
+                height, width, channels = img.shape
+                center_x, center_y = int(lm.x*width), int(lm.y*height)
 
+                required_landmark_list.append([id, center_x, center_y])  
+
+                if draw_hands:
+                    if id==8:
+                        cv2.circle(img, (center_x, center_y), 10, (255, 0, 0), cv2.FILLED)
+
+        return required_landmark_list
 
 
 # Main ====================
@@ -58,8 +84,15 @@ def main():
     current_time = 0
     capture = cv2.VideoCapture(0)
 
+    Vanze = HandDetector()
+
     while True:
         success, img = capture.read()
+        
+        img = Vanze.find_hands(img) #, draw_hands=False)
+        landmark_list = Vanze.find_position(img) #, draw_hands=False)
+        if landmark_list:
+            print(landmark_list[8])
 
         current_time = time.time()
         fps = 1/(current_time - previous_time)
