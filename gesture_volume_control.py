@@ -26,6 +26,16 @@ while True:
     img = Vanze.find_hands(img)
     landmark_list = Vanze.find_position(img)
 
+    # print dentro do if para checarmos se a mão "existe"
+    # if landmark_list:
+    #     print(landmark_list[8])
+    # print(landmark_list) -> printa todos os 21 valores por frame
+    # print(landmark_list[8]) -> printaria só o ponto do dedo indicador
+
+    # nesse caso, precisaremos do dedo número 4 e do número 8 (dedão e indicador)
+    if landmark_list:
+        img = Vanze.draw_in_position(img, [landmark_list[4][1], landmark_list[8][1]], [landmark_list[4][2], landmark_list[8][2]])
+
     current_time = time.time()
     fps = 1/(current_time - previous_time)
     previous_time = current_time

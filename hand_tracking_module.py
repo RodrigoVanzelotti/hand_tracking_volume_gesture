@@ -3,6 +3,9 @@ import mediapipe as mp
 import numpy as np
 import time     # check framerate
 
+from typing import Union
+
+
 '''
 Criando um módulo de tudo que aprendemos, para que não seja necessário repetir toooodo esse código quando formos usar
 Utilizaremos apenas requisições
@@ -21,6 +24,7 @@ Type Hints podem ser usadas para otimizar o código em tempo de execução. Por 
 '''
 webcam_image = np.ndarray
 confidence = float
+coords_vector = Union[int, list[int]]
 # =========================
 
 
@@ -52,8 +56,7 @@ class VanzeDetector():
 
     def find_hands(self, 
                     img: webcam_image, 
-                    draw_hands: bool = True
-                ):
+                    draw_hands: bool = True):
         # Correção de cor
         img_RGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -86,7 +89,18 @@ class VanzeDetector():
 
         return required_landmark_list
 
+    def draw_in_position(self,
+                            img: webcam_image,
+                            x_vector: coords_vector, 
+                            y_vector: coords_vector):
+        x_vector = x_vector if type(x_vector) == list else [x_vector]
+        y_vector = y_vector if type(y_vector) == list else [y_vector]
 
+        for x, y in zip(x_vector, y_vector):
+            cv2.circle(img, (x, y), 10, (255, 0, 0), cv2.FILLED)
+
+        return img
+        
 # Main ====================
 def main():
     # coletando o framerate e capturando o vídeo
