@@ -80,9 +80,9 @@ class VanzeDetector():
 
                 required_landmark_list.append([id, center_x, center_y])  
 
-                if draw_hands:
-                    if id==8:
-                        cv2.circle(img, (center_x, center_y), 10, (255, 0, 0), cv2.FILLED)
+                # if draw_hands:
+                #     # if id==8:
+                #     cv2.circle(img, (center_x, center_y), 10, (255, 0, 0), cv2.FILLED)
 
         return required_landmark_list
 

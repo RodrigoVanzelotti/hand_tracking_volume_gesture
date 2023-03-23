@@ -17,7 +17,8 @@ capture.set(4, cam_height)
 previous_time = 0
 current_time = 0
 
-Vanze = htm.VanzeDetector()
+Vanze = htm.VanzeDetector(min_detec_confidence=0.7)
+# diminuimos a confiança mínima de detecção para diminuir o "flick" ou tremedeira  
 
 while True:
     success, img = capture.read()
