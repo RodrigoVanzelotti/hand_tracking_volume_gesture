@@ -3,7 +3,9 @@
 
 import cv2
 import mediapipe as mp
+import pyautogui
 import time     # check framerate
+
 
 capture = cv2.VideoCapture(0)
 
@@ -39,6 +41,9 @@ Args:
     """
 '''
 
+wait_command = 0
+check_hands = True
+
 
 while True:
     success, img = capture.read()
@@ -57,12 +62,32 @@ while True:
                 # print(id, lm)   # nos retorna as coordenadas em casas decimais, mas queremos em px. Pra isso faremos uma conta
 
                 height, width, channels = img.shape
-                center_x, center_y = int(lm.x*width), int(lm.y*height)
+                center_x, center_y = int(lm.x*width), int(lm.y*height) 
 
                 # print(id, center_x, center_y)
-                # ideia basica de alterar alguma junta
+                # ideia basica de alterar/analisar alguma junta
                 # if id == 8:
-                    # cv2.circle(img, (center_x, center_y), 10, (255, 255, 0), cv2.FILLED)
+                #     cv2.circle(img, (center_x, center_y), 10, (255, 255, 0), cv2.FILLED)
+
+                # exemplo 1: areas de trabalho
+                wait_time = 1
+                able_to_procced = wait_command - time.time() < wait_time
+
+                if able_to_procced:
+                    check_hands = True
+                else:
+                    check_hands = False
+
+                # if id == 8: print(check_hands)
+
+                if id == 8 and check_hands:
+                    if center_x > .9*width:
+                        pyautogui.hotkey("ctrl", "win", "left")
+                        wait_command = time.time() + 2*wait_time
+                    elif center_x < .1*width:
+                        pyautogui.hotkey("ctrl", "win", "right")
+                        wait_command = time.time() + 2*wait_time
+
 
             # mp_draw.draw_landmarks(img, hand) # executar primeiro assim
             mp_draw.draw_landmarks(img, hand, mp_hands.HAND_CONNECTIONS)
