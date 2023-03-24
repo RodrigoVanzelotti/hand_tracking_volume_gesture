@@ -11,6 +11,8 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 import hand_tracking_module as htm
 
+# Corrigir as porcentagens, tem algo errado TODO
+
 # Setting videocam dimensions
 cam_width, cam_height = 1280, 720
 
@@ -81,8 +83,9 @@ while True:
         vol_percentage = np.interp(length, hand_range, [0, 100])  # criar depois
         
         # print(vol)
-        # print(length, vol) # distancia entre os pontos
+        print(length, vol) # distancia entre os pontos
 
+        
         volume.SetMasterVolumeLevel(vol, None)
 
         if length < 30:
@@ -92,11 +95,10 @@ while True:
     cv2.rectangle(img, (50, 150), (85, 400), (30, 30, 186), 3)
     # completando o interior
     cv2.rectangle(img, (50, int(vol_bar)), (85, 400), (30, 186, 35), cv2.FILLED)
+    # inserindo a porcentagem
+    cv2.putText(img, f"{int(vol_percentage)}%", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
 
-    cv2.putText(img, f"{int(vol_percentage)} %", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
-
-            
-
+    # calculando FPS
     current_time = time.time()
     fps = 1/(current_time - previous_time)
     previous_time = current_time
