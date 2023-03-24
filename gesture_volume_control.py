@@ -12,6 +12,10 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import hand_tracking_module as htm
 
 # Corrigir as porcentagens, tem algo errado TODO
+def compound_rule_of_three(a, b, c, d, e):
+    """Calculates a fifth value using a compound rule of three given five values."""
+    f = (c * e * b) / (a * d)
+    return f
 
 # Setting videocam dimensions
 cam_width, cam_height = 1280, 720
@@ -25,7 +29,6 @@ capture.set(4, cam_height)
 # calculo de FPS
 previous_time = 0
 current_time = 0
-
 
 Vanze = htm.VanzeDetector(min_detec_confidence=0.7)
 # diminuimos a confiança mínima de detecção para diminuir o "flick" ou tremedeira 
