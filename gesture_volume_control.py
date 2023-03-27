@@ -11,12 +11,6 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 import hand_tracking_module as htm
 
-# Corrigir as porcentagens, tem algo errado TODO
-def compound_rule_of_three(a, b, c, d, e):
-    """Calculates a fifth value using a compound rule of three given five values."""
-    f = (c * e * b) / (a * d)
-    return f
-
 # Setting videocam dimensions
 cam_width, cam_height = 1280, 720
 
@@ -33,20 +27,14 @@ current_time = 0
 Vanze = htm.VanzeDetector(min_detec_confidence=0.7)
 # diminuimos a confiança mínima de detecção para diminuir o "flick" ou tremedeira 
 
-
 # ajustando o pycaw -> https://github.com/AndreMiras/pycaw
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(
     IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-volume_range = volume.GetVolumeRange()
-min_vol = volume_range[0]
-max_vol = volume_range[1]
 vol_bar = 400 # definir depois
 vol = 0   # definir depois
-vol_percentage = 0  # definir depois
-# volume.SetMasterVolumeLevel(volume_range[1], None)
 
 while True:
     success, img = capture.read()
@@ -77,21 +65,21 @@ while True:
         # print(length)
 
         # Analisar quanto temos de range +- através do print
-        # Pela minha camera, vamos de 40 - 200
-        # volume_range = [-63.5, 0.0]
         hand_range = [25, 170]
+        
+        vol = round(((length - hand_range[0]) / hand_range[1]), 2)
+        if vol > 1: vol = 1
+        if vol < 0: vol = 0
 
-        vol = np.interp(length, hand_range, [min_vol, max_vol])
+
         vol_bar = np.interp(length, hand_range, [400, 150])  # criar depois
         vol_percentage = np.interp(length, hand_range, [0, 100])  # criar depois
         
-        # print(vol)
         print(length, vol) # distancia entre os pontos
 
-        
-        volume.SetMasterVolumeLevel(vol, None)
+        volume.SetMasterVolumeLevelScalar(vol, None)
 
-        if length < 30:
+        if length < hand_range[0]:
             img = Vanze.draw_in_position(img, [center_x], [center_y], (30, 30, 186), 6)
 
     # desenhando a barra do volume
@@ -99,7 +87,7 @@ while True:
     # completando o interior
     cv2.rectangle(img, (50, int(vol_bar)), (85, 400), (30, 186, 35), cv2.FILLED)
     # inserindo a porcentagem
-    cv2.putText(img, f"{int(vol_percentage)}%", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
+    cv2.putText(img, f"{int(vol*100)}%", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
 
     # calculando FPS
     current_time = time.time()

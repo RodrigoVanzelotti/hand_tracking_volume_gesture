@@ -104,7 +104,7 @@ class VanzeDetector():
 
         return img
         
-# Main ====================
+# Main ==================== para teste de classe
 def main():
     # coletando o framerate e capturando o vídeo
     previous_time = 0
