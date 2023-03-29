@@ -10,7 +10,9 @@ from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 import hand_tracking_module as htm
-
+'''
+Teste de git
+'''
 # Get frame dimensions
 capture = cv2.VideoCapture(0)
 cam_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
