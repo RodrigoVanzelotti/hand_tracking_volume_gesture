@@ -6,7 +6,6 @@ import mediapipe as mp
 import pyautogui
 import time     # check framerate
 
-
 capture = cv2.VideoCapture(0)
 
 mp_hands = mp.solutions.hands

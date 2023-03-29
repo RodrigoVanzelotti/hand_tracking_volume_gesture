@@ -11,10 +11,11 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 import hand_tracking_module as htm
 
-# Setting videocam dimensions
-cam_width, cam_height = 1280, 720
-
+# Get frame dimensions
 capture = cv2.VideoCapture(0)
+cam_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+cam_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
 capture.set(3, cam_width)
 capture.set(4, cam_height)
 # capture.set(propID, value) -> o propID é o que define o que estamos alterando na VideoCapture, esses IDs estão na documentação.
@@ -35,6 +36,10 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 
 vol_bar = 400 # definir depois
 vol = 0   # definir depois
+
+# lendo o logo da asimov
+asimov_logo = cv2.imread("assets/asimov_logo_white.png")
+rows, cols, _ = asimov_logo.shape
 
 while True:
     success, img = capture.read()
@@ -59,6 +64,7 @@ while True:
 
         # Por algum motivo o cv2 ta aceitando os valores em BGR ao invés de RGB
         img = Vanze.draw_in_position(img, [x1, x2, center_x], [y1, y2, center_y], (30, 186, 35), 6)
+        cv2.putText(img, f"{int(vol*100)}%", (x2, y2), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
         cv2.line(img, (x1, y1), (x2, y2), (30, 186, 35), 3)
 
         length = math.hypot(x2-x1, y2-y1)   # calcula a hipotenusa entre esses dois pontos
@@ -71,11 +77,11 @@ while True:
         if vol > 1: vol = 1
         if vol < 0: vol = 0
 
-
+        print(img.shape)
         vol_bar = np.interp(length, hand_range, [400, 150])  # criar depois
         vol_percentage = np.interp(length, hand_range, [0, 100])  # criar depois
         
-        print(length, vol) # distancia entre os pontos
+        # print(length, vol) # distancia entre os pontos
 
         volume.SetMasterVolumeLevelScalar(vol, None)
 
@@ -87,15 +93,20 @@ while True:
     # completando o interior
     cv2.rectangle(img, (50, int(vol_bar)), (85, 400), (30, 186, 35), cv2.FILLED)
     # inserindo a porcentagem
-    cv2.putText(img, f"{int(vol*100)}%", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
+    # cv2.putText(img, f"{int(vol*100)}%", (40, 450), cv2.FONT_HERSHEY_DUPLEX, 1, (30, 186, 35), 3)
 
-    # calculando FPS
-    current_time = time.time()
-    fps = 1/(current_time - previous_time)
-    previous_time = current_time
+    # # calculando FPS
+    # current_time = time.time()
+    # fps = 1/(current_time - previous_time)
+    # previous_time = current_time
 
-    cv2.putText(img, f"FPS: {str(int(fps))}", (10, 70), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,255), 3)
+    # cv2.putText(img, f"FPS: {str(int(fps))}", (10, 70), cv2.FONT_HERSHEY_DUPLEX, 1, (255,0,255), 3)
     # cv2.putText(material, texto, localização, fonte, fontScale, cor, thickness)
 
-    cv2.imshow("Image", img)
+    # adicionar o logo na tela
+    # cam_height, cam_width = int(cam_height), int(cam_width)
+
+    img[cam_height-rows:cam_height, cam_width-cols:cam_width] = asimov_logo
+
+    cv2.imshow("Asimov video", img)
     cv2.waitKey(1)
