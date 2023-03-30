@@ -54,6 +54,7 @@ class VanzeDetector():
                                         self.detection_con,
                                         self.tracking_con)    
         self.mp_draw = mp.solutions.drawing_utils
+        self.tip_ids = [4, 8, 12, 16, 20]
 
     def find_hands(self, 
                     img: webcam_image, 
@@ -74,7 +75,7 @@ class VanzeDetector():
                         img: webcam_image, 
                         hand_number: int = 0, 
                         draw_hands: bool = True):
-        required_landmark_list = []
+        self.required_landmark_list = []
         
         if self.results.multi_hand_landmarks:
             my_hand = self.results.multi_hand_landmarks[hand_number]
@@ -82,13 +83,36 @@ class VanzeDetector():
                 height, width, channels = img.shape
                 center_x, center_y = int(lm.x*width), int(lm.y*height)
 
-                required_landmark_list.append([id, center_x, center_y])  
+                self.required_landmark_list.append([id, center_x, center_y])  
 
                 # if draw_hands:
                 #     # if id==8:
                 #     cv2.circle(img, (center_x, center_y), 10, (255, 0, 0), cv2.FILLED)
 
-        return required_landmark_list
+        return self.required_landmark_list
+
+    def fingers_up(self,
+                   img: webcam_image,
+                   ):
+        '''
+        Para essa função devemos examinar a ponta do dedo do dedo que queremos verificar, para dar o veredito se ele está levantado ou não
+        Para isso, vamos analisar sempre a ponta do dedo e dois landmarks abaixo deste. Como por exemplo:
+        Se quero saber se o dedo indicador está pra cima, devo analisar o eixo y do LM 8 e do LM 6. Se o y_8 > y_6, significa que o dedo está levantado,
+            caso contrário, não está.
+        O conceito se repete para todos os outros dedos.
+        '''
+        fingers = []
+
+        # dedão - analisado diferente por que o dedão se comporta de maneira diferente. Não desce no eixo y que nem os outros dedos
+        if self.required_landmark_list[self.tip_ids[0]][1] > self.required_landmark_list[self.tip_ids[0] - 1][1]: fingers.append(1)
+        else: fingers.append(0)
+
+        # Para os outros 4 dedos
+        for id in range(1, 5):
+            if self.required_landmark_list[self.tip_ids[id][2]] < self.required_landmark_list[self.tip_ids[id] - 2][2]: fingers.append(1)
+            else: fingers.append(0)
+
+        return fingers
 
     def draw_in_position(self,
                             img: webcam_image,
