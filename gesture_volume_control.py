@@ -77,7 +77,7 @@ while True:
         if vol > 1: vol = 1
         if vol < 0: vol = 0
 
-        print(img.shape)
+        # print(img.shape)
         vol_bar = np.interp(length, hand_range, [400, 150])  # criar depois
         vol_percentage = np.interp(length, hand_range, [0, 100])  # criar depois
         
